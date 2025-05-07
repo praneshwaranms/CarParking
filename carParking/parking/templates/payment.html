@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code and Payment Form</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .qr-code {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .payment-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-field {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- QR Code Image -->
+    <img class="qr-code" src="../static/img/qr-code.jpeg" alt="QR Code" style="width: 200px; height: auto;">
+
+    <!-- Payment Form -->
+    <form class="payment-form" action="{%url 'payment_view' %}" method="post">
+        {% csrf_token %}
+        <div class="input-field">
+            <!-- <p>{{email}}</p> -->
+            <input type="hidden" id="paymentMethod" name="email" value="{{ email }}" >
+        </div>
+        <button type="submit" class="button">Pay</button>
+    </form>
+
+</body>
+</html>

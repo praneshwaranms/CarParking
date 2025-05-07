@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Enter OTP</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #5f2c82, #49a09d);
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .otp-form {
+            width: 300px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="otp-form">
+        <h2>Enter OTP</h2>
+        {% if flag %}
+            <div class="alert alert-danger" role="alert">
+                <p >Wrong OTP</p>
+            </div>
+        {% endif %}
+        <form action="{% url 'otp_view' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <p>{{email}}</p>
+                <input type="text" name="otp" class="form-control" id="otp" name="otp" placeholder="Enter OTP" required>
+                <input type="hidden" name="email" value="{{ email }}" >
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

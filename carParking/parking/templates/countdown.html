@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Time Taken</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .clock-icon {
+            font-size: 48px;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .time-info {
+            font-size: 24px;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .time-form {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-field {
+            margin-right: 10px;
+        }
+
+        .button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <i class="fa fa-clock-o clock-icon"></i>
+        <span class="time-info">{{minutes}} mins taken</span>
+    </div>
+
+    <form class="time-form" action="{% url 'car_out' %}" method="post">
+        {% csrf_token %}
+        <div class="input-field">
+            <!-- <p>{{email}}</p> -->
+            <input type="hidden" id="input2" name="email" value="{{ email }}">
+        </div>
+        <button type="submit" class="button">Get Car Out</button>
+    </form>
+
+</body>
+</html>

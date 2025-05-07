@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Car Parking Booking</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #5f2c82, #49a09d);
+            color: #fff;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h2 {
+            color: #fff;
+        }
+        .booking-section, .vehicle-section {
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .user-section {
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="text-center">Car Parking Booking for slot {{data}}</h2>
+
+    <!-- User Information Section -->
+    <form  method="post" action="{% url 'booked_view' %}" class="booking-form">
+        {% csrf_token %}
+    <div class="user-section">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="fullName">Email</label>
+                <input type="text" class="form-control" name="email" id="fullName" placeholder="Enter your registered mail">
+                <input type="hidden" class="form-control" name="slot_id" value="{{ data }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="fullName">Full Name</label>
+                <input type="text" class="form-control" name="name" id="fullName" placeholder="Enter your full name">
+            </div>
+            <div class="col-md-6">
+                <label for="contactNumber">Contact Number</label>
+                <input type="text" class="form-control" name = "phone_number" id="contactNumber" placeholder="Enter your contact number">
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Details Section -->
+    <div class="booking-section">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="date">Date</label>
+                <input type="date" name="date" class="form-control" id="date">
+            </div>
+            <div class="col-md-3">
+                <label for="startTime">Start Time</label>
+                <input type="time" class="form-control" name="fromTime" id="startTime" oninput="calculateDuration()">
+            </div>
+            <div class="col-md-3">
+                <label for="endTime">End Time</label>
+                <input type="time" class="form-control" name="toTime" id="endTime" oninput="calculateDuration()">
+            </div>
+        </div>
+
+        <!-- Display calculated duration -->
+        <div class="mt-3">
+            <label for="duration">Duration</label>
+            <span id="displayDuration"  name = "duration" class="ml-2"></span>
+        </div>
+    
+        <!-- Hidden field to store the duration value -->
+        <input type="hidden" name="duration" id="duration_hidden">
+    </div>
+
+    <!-- Vehicle Information Section -->
+    <div class="vehicle-section">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="licensePlate">License Plate Number</label>
+                <input type="text" class="form-control" name="licensePlateNo" id="licensePlate" placeholder="Enter license plate number">
+            </div>
+            <div class="col-md-6">
+                <label for="vehicleMakeModel">Vehicle Make and Model</label>
+                <input type="text" class="form-control" id="vehicleMakeModel" name="vehicleModel" placeholder="Enter vehicle make and model">
+            </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <button type="submit"  class="btn btn-primary" onclick="submitForm()">Submit</button>
+    </div>
+
+</form>
+
+    <!-- Add more sections as needed -->
+
+</div>
+w
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function calculateDuration() {
+        var startTime = document.getElementById('startTime').value;
+        var endTime = document.getElementById('endTime').value;
+
+        if (startTime && endTime) {
+            var startDateTime = new Date('2000-01-01 ' + startTime);
+            var endDateTime = new Date('2000-01-01 ' + endTime);
+
+            var duration = (endDateTime - startDateTime) / (1000 * 60); // in minutes
+
+            // Display the calculated duration
+            document.getElementById('duration_hidden').value = duration + ' minutes';
+            document.getElementById('displayDuration').innerText = duration + 'minutes';
+
+        } else {
+            // Clear the duration field if either start time or end time is not selected
+            document.getElementById('duration').value = '';
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Success</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #4b6cb7, #182848);
+            color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .popup {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup" id="successPopup">
+        <h2>Registered Successfully!</h2>
+    </div>
+
+    <script>
+        // Display the popup on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            var popup = document.getElementById('successPopup');
+            popup.style.display = 'block';
+
+            // Hide the popup after 4 seconds
+            setTimeout(function () {
+                popup.style.display = 'none';
+                // Redirect to the homepage after hiding the popup
+                window.location.href = "{% url 'location' %}";
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

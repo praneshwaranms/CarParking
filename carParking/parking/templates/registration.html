@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+    <!-- Leaflet JS (v1.7.1) -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- Leaflet Routing Machine JS -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Land Information Form</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #ea11a1, #182848);
+            color: #000000;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            margin-top: 50px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            background-color: #4b6cb7;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Land Information Form</h2>
+        <form method="post" action="{%url 'registration' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" placeholder="Full Name" id="name" name="name" >
+            </div>
+
+            <!-- <div class="form-group">
+                <label for="aadhar_number">Aadhar Number:</label>
+                <input type="text" placeholder="Aadhar Number" id="aadhar_number" name="aadhar_number" >
+            </div> -->
+
+            <div class="form-group">
+                <label for="document_input">Document Input:</label>
+                <input class="btn-primary" type="file" placeholder="Document" id="document_input" name="document_input" accept=".pdf, .doc, .docx" >
+            </div>
+
+            <!-- Add the latitude and longitude fields here when integrating with a map -->
+
+            
+            <div class="form-group">
+                <label for="exact_location">Exact Location:</label>
+                <textarea id="exact_location" name="exact_location" rows="4" ></textarea>
+            </div>
+            
+            <div id="map" style="height: 300px;"></div>
+            
+            <div id="map"></div>
+            <div class="form-group">
+                <label for="landmark_name">Landmark Name:</label>
+                <input type="text" placeholder="Enter Landmark" id="landmark_name" name="landmark_name" >
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+<script>
+    let map;
+    let marker;
+
+    function initMap() {
+        // Set the default view to Coimbatore
+        map = L.map('map').setView([11.0168, 76.9558], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add a marker when the user clicks on the map
+        map.on('click', function (e) {
+            updateLocation(e.latlng);
+        });
+    }
+
+    function updateLocation(latlng) {
+        // Update the textarea with the selected location's latitude and longitude
+        document.getElementById('exact_location').value = `${latlng.lat}, ${latlng.lng}`;
+        // Remove existing marker, if any
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        // Add a new marker at the selected location
+        marker = L.marker(latlng).addTo(map);
+    }
+
+    // Initialize the map when the document is loaded
+    document.addEventListener('DOMContentLoaded', initMap);
+</script>
+
+</html>

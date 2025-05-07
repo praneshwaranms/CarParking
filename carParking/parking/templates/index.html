@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        /* Common styles */
+        body {
+             /* no-repeat center center fixed; */
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            
+        }
+
+        .container {
+            text-align: center;
+            margin-top: 100px;
+            padding: 20px;
+        }
+
+        #all-slots-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .parking-rectangle {
+            width: 80px;
+            height: 40px;
+            margin: 5px;
+            color: #ffffff; /* White text color */
+            border: 7px solid #fff700; /* Dark border color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Responsive styles for laptop/desktop */
+        @media (min-width: 768px) {
+            .parking-rectangle {
+                font-size: 18px;
+                width: 100px; /* Adjust width for larger screens */
+                height: 50px; /* Adjust height for larger screens */
+            }
+        }
+
+        /* Responsive styles for mobile */
+        @media (max-width: 767px) {
+            .parking-rectangle {
+                width: 60px;
+                height: 30px;
+            }
+        }
+
+        .car-icon {
+            max-width: 80px;
+        }
+
+        h1 {
+            font-size: 60px;
+            color: #ffcc00;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-weight: bold;
+            -webkit-text-stroke: 2px #333;
+            display: inline;
+        }
+
+        p {
+            font-size: 30px;
+            color: #00cc66;
+            font-family: fantasy;
+            font-weight: bold;
+            
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#"></a>
+    <div class="ml-auto">
+        <!-- Add a login button to the navbar -->
+        {% if flag %}
+        <div class="text-right">
+            <p style="font-family: 'Times New Roman', Times, serif; font-size: 12px; font-style: normal; color: #000000;">{{ email }}</p>
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'home' %}">Log out</a>
+        </div>
+        {% else %}
+            <a class="btn btn-outline-success my-2 my-sm-0" href="{% url 'login' %}">Login</a>
+            <a class="btn btn-outline-success my-2 my-sm-0 ml-2" href="{% url 'signup' %}">Create Account</a>
+        {% endif %}
+    </div>
+   </nav>
+    <div class="container">
+        <h1 style="color: #ffffff;">Parking Data</h1>
+        <p id="space-counter" style="color: #101010;">Free Spaces: {{data}}</p>
+        
+
+        <!-- All Parking Slots in Linear Order -->
+        <div id="all-slots-container"></div>
+    </div>
+
+    <div class="container">
+        <h1>Book Slots</h1>
+        
+        <form method="post" action="{% url 'book_slot' %}" id="bookSlotForm">
+            {% csrf_token %}
+            <input type="hidden" name="slot_id" id="slotIdInput" value="">
+            <div class="row">
+                {% for slot_id in avail_slots %}
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-primary btn-block book-button" data-slot-id="{{ slot_id }}">Book Slot: {{ slot_id }}</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </form>
+        
+
+
+    </div>
+    
+    <!-- Bootstrap JS and Popper.js -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var buttons = document.querySelectorAll(".book-button");
+        
+            buttons.forEach(function(button) {
+                button.addEventListener("click", function() {
+                    var slotId1 = button.dataset.slotId;
+                    document.getElementById("slotIdInput").value = slotId1;
+                    document.getElementById("bookSlotForm").submit();
+                });
+            });
+        });
+        </script>
+
+    <!-- <script>
+        document.querySelectorAll(".btnbutton").forEach(function(button) {
+            button.addEventListener("click", function() {
+                // Retrieve the slot ID from the clicked button
+                var slotId = button.dataset.slotId;
+                console.log("Slot ID:", slotId);
+        
+                // Send an AJAX request to the Django backend
+                fetch('/book_slot/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ 'slot_id': slotId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Request sent successfully");
+                    } else {
+                        console.log("Error sending request");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            });
+        });
+        
+        // Function to retrieve CSRF token from cookies
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Check if the cookie name matches the desired name
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        </script> -->
+        <script>
+
+    var avail_slots = {{avail_slots}};
+    var notAvail_slots = {{notAvail_slots}};
+    console.log(avail_slots);
+    console.log(notAvail_slots);
+
+    var container = $("#all-slots-container");
+
+    // Function to generate parking slot elements
+    function generateParkingSlots(slots) {
+        for (var i = 0; i < slots.length; i++) {
+            var slotElement = $("<div>")
+                .addClass("parking-rectangle");
+
+            if (avail_slots.includes(slots[i])) {
+                slotElement.text(slots[i]).css("background-color", "GREEN");
+                // Display car icon for available slots
+            } else if (notAvail_slots.includes(slots[i])) {
+                var carIcon = $("<img>")
+                    .attr("src", "../static/img/car.png")  // Replace with your image path
+                    .attr("alt", "Car")
+                    .addClass("img-fluid") 
+                    .addClass("car-icon"); 
+                
+                slotElement.append(carIcon);
+            }
+
+            container.append(slotElement);
+        }
+    }
+
+    // Generate parking slots based on the total number of slots
+    var totalSlots = avail_slots.length + notAvail_slots.length;
+    var slotsPerColumn = 10; // Change this value based on your requirement
+
+    for (var i = 0; i < totalSlots; i += slotsPerColumn) {
+        var columnSlots = [];
+        for (var j = 0; j < slotsPerColumn; j++) {
+            var slotIndex = i + j;
+            if (slotIndex < totalSlots) {
+                columnSlots.push(slotIndex + 1);
+            }
+        }
+        generateParkingSlots(columnSlots);
+
+        // Add a line break after each set of slots in a column
+        container.append("<br>");
+    }
+    </script>
+
+    
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Location and Check Nearby</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+    <style>
+        body {
+            background: linear-gradient(45deg, #3498db, #e74c3c);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            color: black;
+        }
+
+        button {
+            margin: 10px;
+        }
+
+        .distance-info-btn {
+            background-color: #28a745; /* Bootstrap success color */
+            color: rgb(0, 0, 0);
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+
+        @media (max-width: 600px) {
+            #map {
+                height: 300px;
+            }
+        }
+        #leaflet-routing-alt{
+            color: black;
+    }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1 class="mt-5">Select Location and Check Nearby</h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4 text-center">
+            <button class="btn btn-primary mt-3" onclick="registerLand()">Register Land</button>
+        </div>
+
+
+        <div class="col-md-6 col-lg-4 text-center">
+            <button class="btn btn-success mt-3" onclick="checkNearby()">Check Nearby</button>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div id="map" class="mt-4"></div>
+            <!-- Updated styling for the distance information -->
+            <p id="distance-info" class="mt-3"></p>
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'home' %}" id="bookSlotForm">
+        {% csrf_token %}
+        <div class="row">
+            {% for n in name %}
+                <input type="hidden" name="name" id="slotIdInput" value="{{ n }}">
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-danger btn-block book-button" data-slot-id="{{ n }}">{{n}}</button>
+                </div>
+            {% endfor %}
+        </div>
+    </form>
+
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+<!-- Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Leaflet JS (v1.7.1) -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<script>
+    let map;
+    let selectedLocation;
+    const names = {{ name|safe }};    
+    const latitudes ={{ lat1|safe }}; 
+    const longitudes =  {{ lon1|safe }}; 
+    console.log(longitudes);
+
+
+    const assignedLocations = [];
+
+    // Assuming all three lists have the same length
+    const numberOfLocations = names.length;
+
+    for (let i = 0; i < numberOfLocations; i++) {
+        const location = {
+            name: names[i],
+            lat: latitudes[i],
+            lng: longitudes[i]
+        };
+
+        assignedLocations.push(location);
+    }
+
+    console.log(assignedLocations);
+
+    function initMap() {
+        // Set the default view to Coimbatore
+        map = L.map('map').setView([11.0168, 76.9558], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add markers for each assigned location
+        for (const assignedLocation of assignedLocations) {
+            L.marker([assignedLocation.lat, assignedLocation.lng])
+                .addTo(map)
+                .bindPopup(`${assignedLocation.name}: ${assignedLocation.lat}, ${assignedLocation.lng}`);
+        }
+
+        map.on('click', function (e) {
+            if (selectedLocation) {
+                selectedLocation.removeFrom(map); // Remove previous marker
+            }
+            selectedLocation = L.marker(e.latlng).addTo(map);
+        });
+    }
+
+    function registerLand() {
+        window.location.href = "{% url 'reg' %}";
+    }
+
+
+    function checkNearby() {
+        if (selectedLocation) {
+            const selectedLat = selectedLocation.getLatLng().lat;
+            const selectedLng = selectedLocation.getLatLng().lng;
+
+            const nearbyThreshold = 3;
+
+            let isNearby = false;
+            let distances = [];
+
+            // Calculate and store distances to each assigned location
+            for (const assignedLocation of assignedLocations) {
+                const distance = calculateDistance(selectedLat, selectedLng, assignedLocation.lat, assignedLocation.lng);
+                distances.push({ name: assignedLocation.name, distance });
+                if (distance < nearbyThreshold) {
+                    isNearby = true;
+                }
+            }
+
+            // Sort distances in ascending order
+            distances.sort((a, b) => a.distance - b.distance);
+
+            let distanceInfo = '';
+
+            // Display sorted distances
+            for (const distanceObj of distances) {
+                distanceInfo += `${distanceObj.name}: ${distanceObj.distance.toFixed(2)} km<br>`;
+            }
+
+            document.getElementById('distance-info').innerHTML = distanceInfo;
+
+            if (isNearby) {
+                showRoute(); // Call showRoute function here
+            } else {
+                alert('Selected location is not nearby any of the locations.');
+            }
+        } else {
+            alert('Please select a location on the map first.');
+        }
+    }
+
+    function showRoute() {
+        if (selectedLocation) {
+            const selectedLat = selectedLocation.getLatLng().lat;
+            const selectedLng = selectedLocation.getLatLng().lng;
+
+            let nearestLocation = null;
+            let minDistance = Infinity;
+
+            // Find the nearest assigned location
+            for (const assignedLocation of assignedLocations) {
+                const distance = calculateDistance(selectedLat, selectedLng, assignedLocation.lat, assignedLocation.lng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestLocation = assignedLocation;
+                }
+            }
+
+            if (nearestLocation) {
+                // Draw a route on the map using Leaflet Routing Machine
+                L.Routing.control({
+                    waypoints: [
+                        L.latLng(selectedLat, selectedLng),
+                        L.latLng(nearestLocation.lat, nearestLocation.lng)
+                    ],
+                    routeWhileDragging: true
+                }).addTo(map);
+            } else {
+                alert('No assigned locations to calculate the route.');
+            }
+        } else {
+            alert('Please select a location on the map first.');
+        }
+    }
+
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = deg2rad(lat2 - lat1);
+        const dLng = deg2rad(lng2 - lng1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        return distance;
+    }
+
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    document.addEventListener('DOMContentLoaded', initMap);
+</script>
+
+</body>
+</html>
