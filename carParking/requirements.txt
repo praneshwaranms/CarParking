@@ -60,7 +60,7 @@ progressbar2==4.4.2
 protobuf==5.28.0
 psutil==7.0.0
 py-cpuinfo==9.0.0
-PyAutoGUI==0.9.54
+//PyAutoGUI==0.9.54
 pycparser==2.22
 pygame==2.5.2
 PyGetWindow==0.0.9
